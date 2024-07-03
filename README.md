@@ -6,6 +6,15 @@
 # Install Django
 pip install Django
 
+# Install Django Rest Framework
+pip install djangorestframework
+
+# Install PyMongo
+pip install pymongo[snappy,gssapi,srv,tls]
+
+# Install dnspython for using mongodb+srv:// URIs with the command
+pip install dnspython
+
 # Create a new Django project
 django-admin startproject [hitotose]
 
@@ -22,3 +31,7 @@ INSTALLED_APPS = [
 # Define a model
 
 ```
+
+## Reference
+
+- [Django Integration With MongoDB Tutorial](https://www.mongodb.com/resources/products/compatibilities/mongodb-and-django)
