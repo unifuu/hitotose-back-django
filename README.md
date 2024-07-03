@@ -6,6 +6,9 @@
 # Install Django
 pip install Django
 
+# Install Djongo (MongoDB)
+pip install djongo
+
 # Install Django Rest Framework
 pip install djangorestframework
 
@@ -31,7 +34,3 @@ INSTALLED_APPS = [
 # Define a model
 
 ```
-
-## Reference
-
-- [Django Integration With MongoDB Tutorial](https://www.mongodb.com/resources/products/compatibilities/mongodb-and-django)
