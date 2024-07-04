@@ -22,13 +22,12 @@ pip install dnspython
 django-admin startproject [hitotose]
 
 # Create a new Django app with the project
-python manage.py startapp [api]
+python manage.py startapp [new_app]
 
 # Add the app to `settings.py`
 INSTALLED_APPS = [
     ...,
-    'rest_framework',
-    'api',
+    'new_app',
 ]
 
 # Define a model

@@ -1,0 +1,20 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Ignore SQLite database file
+db.sqlite3
+
+# Python compiled files
+*.pyc
+__pycache__/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.swp
