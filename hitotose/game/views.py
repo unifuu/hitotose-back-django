@@ -7,17 +7,53 @@ from rest_framework import viewsets
 from bson import ObjectId
 from .models import Game
 from .serializers import GameSerializer
+from django.apps import apps
+from datetime import datetime
 
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
 
 def get_game_by_id(request, id):
-    print("game_by_id.id=", id)
     game = get_object_or_404(Game, _id=ObjectId(id))
-    print("game_by_id.game=", game)
     serializer = GameSerializer(game)
     return JsonResponse(serializer.data)
+
+def get_title_by_id(id):
+    game = get_object_or_404(Game, _id=ObjectId(id))
+    serializer = GameSerializer(game)
+    return serializer.data['title']
+
+def start_game(request, id):
+    app_config = apps.get_app_config('game')
+    stopwatch = app_config.stopwatch
+
+    print('start_game.stopwatch:', stopwatch)
+
+    if stopwatch.game_id is None or stopwatch.game_id == '':
+        stopwatch.game_id = id
+        stopwatch.game_title = get_title_by_id(id)
+        stopwatch.start_time = datetime.now()
+        stopwatch.end_time = ''
+        stopwatch.duration = 0
+        print('stopwatch: ', stopwatch)
+        return JsonResponse({'message': stopwatch.to_dict()})
+    else:
+        return JsonResponse({'message': 'A game is already starting...'})
+
+def stop_game(request, id):
+    app_config = apps.get_app_config('game')
+    stopwatch = app_config.stopwatch
+
+    if stopwatch is not None:
+        if stopwatch.game_id == id:
+            print('Stopping the game')
+            stopwatch.clear()
+            return JsonResponse({'message': 'Ended!'})
+        else:
+            return JsonResponse({'message': 'The game is not running...'})
+    else:
+        return JsonResponse({'message': 'No active game!'})
 
 @api_view(['POST'])
 def create_game(request):

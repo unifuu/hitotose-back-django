@@ -12,12 +12,6 @@ pip install djongo
 # Install Django Rest Framework
 pip install djangorestframework
 
-# Install PyMongo
-pip install pymongo[snappy,gssapi,srv,tls]
-
-# Install dnspython for using mongodb+srv:// URIs with the command
-pip install dnspython
-
 # Create a new Django project
 django-admin startproject [hitotose]
 
