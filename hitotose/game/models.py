@@ -1,7 +1,6 @@
 from djongo import models
 from bson import ObjectId
 
-# Create your models here.
 class Game(models.Model):
     _id = models.ObjectIdField(primary_key=True, default=ObjectId, editable=False)
     title  = models.CharField(max_length=100)
