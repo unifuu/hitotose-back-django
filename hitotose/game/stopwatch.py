@@ -38,6 +38,7 @@ class Stopwatch(metaclass=StopwatchMeta):
         }
     
     def clear(self):
+        # self = None
         self.game_id = None
         self.game_title = None
         self.start_time = None

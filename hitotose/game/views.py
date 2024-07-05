@@ -47,7 +47,19 @@ def stop_game(request, id):
 
     if stopwatch is not None:
         if stopwatch.game_id == id:
-            print('Stopping the game')
+            
+            # Get duration
+            stopwatch.end_time = datetime.now()
+            duration = stopwatch.end_time - stopwatch.start_time
+            total_seconds = duration.total_seconds()
+            stopwatch.duration = total_seconds // 60
+
+            game = get_object_or_404(Game, _id=ObjectId(id))
+            game.played_time += stopwatch.duration
+            game.save()
+
+            # Game.objects.filter(_id=ObjectId(id)).update(duration=game.duration + stopwatch.duration)
+
             stopwatch.clear()
             return JsonResponse({'message': 'Ended!'})
         else:

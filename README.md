@@ -18,12 +18,6 @@ django-admin startproject [hitotose]
 # Create a new Django app with the project
 python manage.py startapp [new_app]
 
-# Add the app to `settings.py`
-INSTALLED_APPS = [
-    ...,
-    'new_app',
-]
-
-# Define a model
-
+# Run server
+python manage.py runserver
 ```
