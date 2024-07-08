@@ -88,3 +88,30 @@ def update_game(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def get_games(request, status, platform, p):
+    // Fixing...
+
+def badge(request, status):
+    played_count = Game.objects.filter(status='Played').count()
+    playing_count = Game.objects.filter(status='Playing').count()
+    to_play_count = Game.objects.filter(status='ToPlay').count()
+
+    all_platform = Game.objects.filter(status=status).count()
+    pc = Game.objects.filter(status=status, platform='PC').count()
+    playstation = Game.objects.filter(status=status, platform='PlayStation').count()
+    nintendo_switch = Game.objects.filter(status=status, platform='Nintendo Switch').count()
+    xbox = Game.objects.filter(status=status, platform='Xbox').count()
+    mobile = Game.objects.filter(status=status, platform='Mobile').count()
+    
+    return JsonResponse({
+        'played': played_count,
+        'playing': playing_count,
+        'to_play': to_play_count,
+        'all_platform': all_platform,
+        'pc': pc,
+        'playstation': playstation,
+        'nintendo_switch': nintendo_switch,
+        'xbox': xbox,
+        'mobile': mobile
+    })

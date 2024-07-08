@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from djongo import models
 from bson import ObjectId
 
@@ -16,3 +17,9 @@ class Game(models.Model):
 
     class Meta:
         db_table = "game"
+
+@dataclass
+class Bagde:
+    played: int
+    playing: int
+    to_played: int

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from game.views import GameViewSet, create_game, get_game_by_id, start_game, stop_game, update_game
+from game.views import GameViewSet, badge, create_game, get_game_by_id, start_game, stop_game, update_game
 
 router = routers.DefaultRouter()
 router.register(r'games', GameViewSet)
@@ -30,4 +30,6 @@ urlpatterns = [
     path('/api/game/update/<str:id>/', update_game, name='update_game'),
     path('api/game/start/<str:id>/', start_game, name='start_game'),
     path('api/game/stop/<str:id>/', stop_game, name='stop_game'),
+    path('api/game/badge/status/<str:status>', badge, name='badge'),
+    path('api/game/badge/status/<str:status>/platform/<str:platform>/p/<str:page>', get_games, name='get_games')
 ]
