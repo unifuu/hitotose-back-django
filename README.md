@@ -12,6 +12,9 @@ pip install djongo
 # Install Django Rest Framework
 pip install djangorestframework
 
+# Install Django CORS Headers
+pip install django-cors-headers
+
 # Create a new Django project
 django-admin startproject [hitotose]
 

@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/game/<str:id>/', get_game_by_id, name='get_game_by_id'),
     path('/api/game/create', create_game, name='create_game'),
-    path('/api/game/update/<str:id>/', update_game, name='update_game'),
+    path('api/game/update/<str:id>/', update_game, name='update_game'),
     path('api/game/start/<str:id>/', start_game, name='start_game'),
     path('api/game/stop/<str:id>/', stop_game, name='stop_game'),
     path('api/game/badge/status/<str:status>', badge, name='badge'),

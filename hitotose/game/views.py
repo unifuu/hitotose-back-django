@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_protect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -95,14 +96,18 @@ def create_game(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['PUT'])
+
+@csrf_protect
 def update_game(request, id):
     if not ObjectId.is_valid(id):
         return Response({'error': 'Invalid ID format'}, status=status.HTTP_400_BAD_REQUEST)
     
     game = get_object_or_404(Game, _id=ObjectId(id))
-    if request.method == 'PUT':
+    if request.method == 'GET':
+            game = get_object_or_404(Game, _id=ObjectId(id))
+            serializer = GameSerializer(game)
+            return JsonResponse(serializer.data)
+    else:
         serializer = GameSerializer(game, data=request.data)
         if serializer.is_valid():
             serializer.save()
