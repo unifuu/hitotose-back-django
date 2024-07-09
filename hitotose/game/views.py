@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from rest_framework import viewsets
 from bson import ObjectId
@@ -9,6 +10,14 @@ from .models import Game
 from .serializers import GameSerializer
 from django.apps import apps
 from datetime import datetime
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
+
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        return super().default(obj)
 
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
@@ -40,6 +49,17 @@ def start_game(request, id):
         return JsonResponse({'message': stopwatch.to_dict()})
     else:
         return JsonResponse({'message': 'A game is already starting...'})
+
+def stopwatch(request):
+    app_cfg = apps.get_app_config('game')
+    stopwatch = app_cfg.stopwatch
+    return JsonResponse({
+        'game_id': stopwatch.game_id,
+        'game_title': stopwatch.game_title,
+        'start_time': stopwatch.start_time,
+        'end_time': stopwatch.end_time,
+        'duration': stopwatch.duration,
+    })
 
 def stop_game(request, id):
     app_config = apps.get_app_config('game')
@@ -89,8 +109,41 @@ def update_game(request, id):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def get_games(request, status, platform, p):
-    // Fixing...
+def get_games(request, status, platform, page):
+    if platform == 'All':
+        game_list = Game.objects.filter(status=status).order_by('title')
+    else:
+        game_list = Game.objects.filter(status=status, platform=platform).order_by('title')
+    paginator = Paginator(game_list, 30)
+    page_obj = paginator.get_page(page)
+    
+    # games = serializers.serialize('json', page_obj)
+
+    games = []
+    for game in page_obj:
+        games.append({
+            'id': str(game._id),
+            'title': game.title,
+            'genre': game.genre,
+            'platform': game.platform,
+            'developer': game.developer,
+            'publisher': game.publisher,
+            'status': game.status,
+            'played_time': game.played_time,
+            'time_to_beat': game.time_to_beat,
+            'ranking': game.ranking,
+            'rating': game.rating,
+        })
+
+    data = {
+        'games': games,
+        'page': page_obj.number,
+        'pages': paginator.num_pages,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+    }
+    # return JsonResponse(data, safe=False)
+    return JsonResponse(data, encoder=CustomJSONEncoder, safe=False)
 
 def badge(request, status):
     played_count = Game.objects.filter(status='Played').count()
