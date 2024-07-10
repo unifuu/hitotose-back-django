@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_protect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from rest_framework import viewsets
@@ -13,6 +13,13 @@ from django.apps import apps
 from datetime import datetime
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
+
+def get_csrf(request):
+    csrf_token = get_token(request)
+    print("CSRF_TOKEN:", csrf_token)
+    return JsonResponse({'csrf_token': csrf_token})
 
 class CustomJSONEncoder(DjangoJSONEncoder):
     def default(self, obj):
@@ -24,15 +31,15 @@ class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
 
-def get_game_by_id(request, id):
-    game = get_object_or_404(Game, _id=ObjectId(id))
-    serializer = GameSerializer(game)
-    return JsonResponse(serializer.data)
+# def get_game_by_id(request, id):
+#     game = get_object_or_404(Game, _id=ObjectId(id))
+#     serializer = GameSerializer(game)
+#     return JsonResponse(serializer.data)
 
-def get_title_by_id(id):
-    game = get_object_or_404(Game, _id=ObjectId(id))
-    serializer = GameSerializer(game)
-    return serializer.data['title']
+# def get_title_by_id(id):
+#     game = get_object_or_404(Game, _id=ObjectId(id))
+#     serializer = GameSerializer(game)
+#     return serializer.data['title']
 
 def start_game(request, id):
     app_config = apps.get_app_config('game')
@@ -97,22 +104,52 @@ def create_game(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@csrf_protect
-def update_game(request, id):
-    if not ObjectId.is_valid(id):
-        return Response({'error': 'Invalid ID format'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    game = get_object_or_404(Game, _id=ObjectId(id))
+def to_update_game(request, id):
+    try:
+        game_id = ObjectId(id)
+    except Exception as e:
+        return Response({"error": "Invalid game ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        game = Game.objects.get(pk=game_id)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
-            game = get_object_or_404(Game, _id=ObjectId(id))
             serializer = GameSerializer(game)
             return JsonResponse(serializer.data)
-    else:
-        serializer = GameSerializer(game, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_protect
+def update_game(request):
+    try:
+        game_id = ObjectId(request.POST.get('id'))
+        game = Game.objects.get(pk=game_id)
+        if request.method == 'POST':
+            played_time_hour = int(request.POST.get('played_time_hour'), 0)
+            played_time_min = int(request.POST.get('played_time_min'), 0)
+            time_to_beat_hour = int(request.POST.get('time_to_beat_hour'), 0)
+            time_to_beat_min = int(request.POST.get('time_to_beat_min'), 0)
+            
+            played_time = played_time_hour * 60 + played_time_min
+            time_to_beat = time_to_beat_hour * 60 + time_to_beat_min
+
+            game.played_time = played_time
+            game.time_to_beat = time_to_beat
+
+            game.title = request.POST.get('title', game.title)
+            game.genre = request.POST.get('genre', game.genre)
+            game.platform = request.POST.get('platform', game.platform)
+            game.developer = request.POST.get('developer', game.developer)
+            game.publisher = request.POST.get('publisher', game.publisher)
+            game.status = request.POST.get('status', game.status)
+            game.ranking = int(request.POST.get('ranking', game.ranking))
+            game.rating = request.POST.get('rating', game.rating)
+
+            game.save()
+            return redirect('/game/')
+    except Exception as e:
+        print("view.update_game: error = ", e)
+        return redirect('/game/')
 
 def get_games(request, status, platform, page):
     if platform == 'All':
@@ -173,3 +210,9 @@ def badge(request, status):
         'xbox': xbox,
         'mobile': mobile
     })
+
+@api_view(['DELETE'])
+def delete_game(request, id):
+    game = get_object_or_404(Game, _id=ObjectId(id))
+    game.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
