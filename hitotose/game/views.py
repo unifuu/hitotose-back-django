@@ -36,16 +36,14 @@ class GameViewSet(viewsets.ModelViewSet):
 #     serializer = GameSerializer(game)
 #     return JsonResponse(serializer.data)
 
-# def get_title_by_id(id):
-#     game = get_object_or_404(Game, _id=ObjectId(id))
-#     serializer = GameSerializer(game)
-#     return serializer.data['title']
+def get_title_by_id(id):
+    game = get_object_or_404(Game, _id=ObjectId(id))
+    serializer = GameSerializer(game)
+    return serializer.data['title']
 
 def start_game(request, id):
     app_config = apps.get_app_config('game')
     stopwatch = app_config.stopwatch
-
-    print('start_game.stopwatch:', stopwatch)
 
     if stopwatch.game_id is None or stopwatch.game_id == '':
         stopwatch.game_id = id
@@ -53,8 +51,7 @@ def start_game(request, id):
         stopwatch.start_time = datetime.now()
         stopwatch.end_time = ''
         stopwatch.duration = 0
-        print('stopwatch: ', stopwatch)
-        return JsonResponse({'message': stopwatch.to_dict()})
+        return redirect('/game/')
     else:
         return JsonResponse({'message': 'A game is already starting...'})
 
@@ -97,12 +94,13 @@ def stop_game(request, id):
 
 @api_view(['POST'])
 def create_game(request):
-    if request.method == 'POST':
-        serializer = GameSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data.copy()
+    data['status'] = "Playing"
+
+    serializer = GameSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return redirect('/game/')
 
 def to_update_game(request, id):
     try:
