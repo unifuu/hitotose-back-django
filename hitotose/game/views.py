@@ -51,7 +51,9 @@ def start_game(request, id):
         stopwatch.start_time = datetime.now()
         stopwatch.end_time = ''
         stopwatch.duration = 0
-        return redirect('/game/')
+
+        # return redirect('/game/')
+        return JsonResponse({'message': 'OK'})
     else:
         return JsonResponse({'message': 'A game is already starting...'})
 
@@ -69,18 +71,19 @@ def stopwatch(request):
 def stop_game(request):
     app_config = apps.get_app_config('game')
     stopwatch = app_config.stopwatch
-
+    
     if stopwatch is not None:
-        print("#001", stopwatch)
-        # Get duration
         stopwatch.end_time = datetime.now()
         duration = stopwatch.end_time - stopwatch.start_time
         total_seconds = duration.total_seconds()
-        stopwatch.duration = total_seconds // 60
+        stopwatch.duration = int(total_seconds // 60)
 
-        print("#002", stopwatch)
+        try:
+            game_id = ObjectId(stopwatch.game_id)
+            game = Game.objects.get(pk=game_id)
+        except Game.DoesNotExist:
+            return JsonResponse({'message': 'Game not found!'}, status=404)
 
-        game = get_object_or_404(Game, _id=ObjectId(stopwatch.game_id))
         game.played_time += stopwatch.duration
         game.save()
 
@@ -92,6 +95,8 @@ def stop_game(request):
 @api_view(['POST'])
 def create_game(request):
     data = request.data.copy()
+    data['played_time'] = 0
+    data['time_to_beat'] = 0
     data['status'] = "Playing"
 
     serializer = GameSerializer(data=data)

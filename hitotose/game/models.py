@@ -10,8 +10,8 @@ class Game(models.Model):
     developer = models.CharField(max_length=30)
     publisher = models.CharField(max_length=30)
     status = models.CharField(max_length=10)
-    played_time = models.IntegerField()
-    time_to_beat = models.IntegerField()
+    played_time = models.IntegerField(default=0)
+    time_to_beat = models.IntegerField(default=0)
     ranking = models.IntegerField()
     rating = models.CharField(max_length=3)
 
