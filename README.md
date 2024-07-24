@@ -6,6 +6,8 @@
 # Install Django
 pip install Django
 
+pip install pytz
+
 # Install Djongo (MongoDB)
 pip install djongo
 
@@ -23,4 +25,7 @@ python manage.py startapp [new_app]
 
 # Run server
 python manage.py runserver
+
+# Docker
+docker-compose up -d --build
 ```

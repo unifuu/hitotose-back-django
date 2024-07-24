@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo
+    container_name: 'mongodb'
+    hostname: 'mongo'
+    ports:
+      - "27017:27017"
+    restart: always
+
+  web:
+    build: .
+    container_name: 'django'
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
