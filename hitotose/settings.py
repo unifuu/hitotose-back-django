@@ -90,8 +90,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'ditto',
-        'HOST': 'localhost',
-        'PORT': 27017,
+        # 'HOST': 'localhost',
+        # 'PORT': 27017,
+        'CLIENT': {
+            'host': 'mongo',
+            'port': 27017,
+            # Add any other necessary parameters
+        }
     }
 }
 

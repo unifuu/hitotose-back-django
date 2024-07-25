@@ -1,4 +1,6 @@
-Django
+Django==4.1.13
+six
+dnspython
 pytz
 pymongo
 djongo
